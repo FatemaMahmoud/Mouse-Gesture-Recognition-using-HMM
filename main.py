@@ -25,7 +25,8 @@ for i in range(0,7):
         allModels.append(HiddenMarkovModel(2, 'Left Down', tempDic))
     elif tempDic['Y'][0] == 'downside':
         allModels.append(HiddenMarkovModel(3, 'Up Right Down', tempDic))
-        
+    else :
+        allModels.append(HiddenMarkovModel(4, 'circle', tempDic))   
     tempDic.clear()
 
 classifier = Classifier(allModels)

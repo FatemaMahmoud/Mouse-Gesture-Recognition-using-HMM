@@ -14,13 +14,7 @@ class HiddenMarkovModel:
         self.trainData = self.normalizedData[0:70]
         self.gaussian_init(self.trainData)
         self.testData = self.normalizedData[70:100]
-        self.init_trans()
-        accuracy = 0
-        for obs in self.testData:
-            if self.evaluate(obs) > 0.0:
-                accuracy = accuracy + 1
-        print ('accuracy of ' + self.name + ' model is : ' + str(accuracy/30))
-        #self.learn()
+        self.init_trans()   
                 
     def normalize_data (self, data):
         meanX = list()
@@ -62,6 +56,7 @@ class HiddenMarkovModel:
         for s in self.allStates:
             x1, y1 = np.random.multivariate_normal(s.mean, s.covariance, 5000).T
             plt.plot(x1, y1, 'x')
+        
         plt.show()
         
     
@@ -199,36 +194,38 @@ class HiddenMarkovModel:
         obs = self.normalize_data([obs])
         plt.show()        
         T = len(obs[0])
-        self.alpha = np.dtype(np.float32)
-        self.alpha = np.arange(T*self.statesNum, dtype=np.float32).reshape(self.statesNum, T)
+        self.alpha = np.dtype(np.float64)
+        self.alpha = np.arange(T*self.statesNum, dtype=np.float64).reshape(self.statesNum, T)
         self.alpha[0][0] = 1.0
         for s in range(1,self.statesNum):
             self.alpha[s][0] = 0.0
-        self.beta = np.dtype(np.float32)
-        self.beta = np.arange(T*self.statesNum, dtype=np.float32).reshape(self.statesNum, T)
+        self.beta = np.dtype(np.float64)
+        self.beta = np.arange(T*self.statesNum, dtype=np.float64).reshape(self.statesNum, T)
         for s in range(0,self.statesNum):
             self.beta[s][T-1] = 1.0
         for t in range(0,T-1):
             for i in range(self.statesNum):
                 sumAlpha = 0.0
-                for j in range(self.statesNum):
-                    sumAlpha = sumAlpha + self.alpha[j][t]*self.transMat[j][i]
+                for j in range(self.statesNum):                        
+                    sumAlpha = sumAlpha + self.alpha[j][t]*(self.transMat[j][i])
                 
-                self.alpha[i][t+1] = float(sumAlpha*multivariate_normal.pdf(obs[0][t+1], 
-                     self.allStates[i].mean, self.allStates[i].covariance))
-            
+                self.alpha[i][t+1] = float(sumAlpha*((multivariate_normal.pdf(obs[0][t+1], 
+                     self.allStates[i].mean, self.allStates[i].covariance))))
+
         for t in range(0,T-1):
             for i in range(self.statesNum):
                 sumBeta = 0
                 for j in range(self.statesNum):
-                    sumBeta = sumBeta + self.transMat[i][j]*multivariate_normal.pdf(obs[0][T-t-1], 
-                     self.allStates[j].mean, self.allStates[j].covariance)*self.beta[j][T-t-1]
+                        
+                    sumBeta = sumBeta + (self.transMat[i][j])*(multivariate_normal.pdf(obs[0][T-t-1], 
+                     self.allStates[j].mean, self.allStates[j].covariance))*self.beta[j][T-t-1]
                 self.beta[i][T-t-2] = sumBeta
 
         prob = 0
         for t in range(T):
             for i in range(self.statesNum):
                 prob = prob + self.alpha[i][t]*self.beta[i][t]
+                #print (prob)
         return prob
     
     def logLikelihood(self, data):

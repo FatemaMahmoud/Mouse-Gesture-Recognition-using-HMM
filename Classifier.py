@@ -4,7 +4,14 @@ class Classifier:
     
     def __init__ (self, allModels):
         self.allModels = allModels
-        
+        accuracy = 0
+        for model in self.allModels:
+            for obs in model.testData:
+                cName = self.classify(obs)
+                if cName == model.name:
+                    accuracy = accuracy + 1
+            print ('Accuracy of ' + model.name + ' gesture model is ' + str((accuracy/30)*100) + '%')
+            accuracy = 0
     def classify(self, points):
         classRes = None
         maxRes = None
@@ -13,7 +20,5 @@ class Classifier:
             if classRes is None or ev > maxRes:
                 classRes = model
                 maxRes = ev
-        if maxRes == 0:
-            return "This sequence doesn't have a model."
-        return "Is it a sequence of " + classRes.name +"?"
+        return classRes.name
         

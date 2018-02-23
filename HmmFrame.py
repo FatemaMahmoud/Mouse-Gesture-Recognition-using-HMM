@@ -41,7 +41,7 @@ class HmmFrame(tk.Frame):
         self.line = self.drawingCanvas.create_line(self.points , fill = "black", width = 3)
         
     def on_release(self, event):
-        tk.messagebox.askquestion("Sequence Class", self.classifier.classify(self.points))
+        tk.messagebox.askquestion("Sequence Class", self.classifier.classify(self.points) + '?')
         self.points.clear()
         
     def on_click_clear(self, event):
